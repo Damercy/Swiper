@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -82,4 +84,10 @@ mavenPublishing{
             developerConnection.set("scm:git:ssh://git@github.com/Damercy/Swiper.git")
         }
     }
+
+    configure(AndroidSingleVariantLibrary(
+        variant = "release",
+        sourcesJar = true,
+        publishJavadocJar = true,
+    ))
 }
