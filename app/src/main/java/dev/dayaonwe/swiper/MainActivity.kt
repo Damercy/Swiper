@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 fun BasicSwiperUsage(modifier: Modifier = Modifier) {
     BasicSwiper(
         modifier = modifier,
-        displayText = "Basic Swiper",
+        displayText = "Swipe",
         containerColor = Color.Green,
         progressContent = { LinearProgressIndicator() },
         onSwipeComplete = {
@@ -186,6 +186,24 @@ fun RawSwiperUsage(modifier: Modifier = Modifier) {
     )
 }
 
+
+@Preview
+@Composable
+private fun PrevOne() {
+    SwiperTheme {
+        BasicSwiperUsage()
+    }
+}
+
+@Preview
+@Composable
+private fun PrevTwo() {
+    SwiperTheme {
+        Surface {
+            OutlinedVariantContentSwiperUsage()
+        }
+    }
+}
 
 @Preview
 @Composable
