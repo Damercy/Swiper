@@ -1,12 +1,13 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    `maven-publish`
 }
 
 android {
     namespace = "dev.dayaonweb.swiper"
     compileSdk = 34
-    version = libs.versions.swiper
+    version = "1.0.0"
 
     defaultConfig {
         minSdk = 24
@@ -48,6 +49,19 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                from (components["release"])
+                groupId = "dev.dayaonweb"
+                artifactId = "swiper"
+                version = "1.0.0"
+            }
         }
     }
 }
