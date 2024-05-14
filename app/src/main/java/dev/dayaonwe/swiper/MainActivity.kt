@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateColor
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -15,49 +13,32 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.rounded.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,7 +48,6 @@ import dev.dayaonweb.swiper.AnchoredDragDefaults
 import dev.dayaonweb.swiper.BasicSwiper
 import dev.dayaonweb.swiper.ContentSwiper
 import dev.dayaonweb.swiper.RawSwiper
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +71,7 @@ fun BasicSwiperUsage(modifier: Modifier = Modifier) {
     BasicSwiper(
         modifier = modifier,
         displayText = "Basic Swiper",
-        containerColor = Color.Black,
+        containerColor = Color.Green,
         progressContent = { LinearProgressIndicator() },
         onSwipeComplete = {
 
@@ -100,21 +80,19 @@ fun BasicSwiperUsage(modifier: Modifier = Modifier) {
 
 @Composable
 fun ContentSwiperUsage(modifier: Modifier = Modifier) {
-    ContentSwiper(containerColor = Color.Blue,
+    ContentSwiper(
+        modifier = modifier,
+        containerColor = Color.Blue,
         postSwipeContent = {
-            Text(text = "Content Swiper")
+            CircularProgressIndicator(color = Color.White)
         },
         preSwipeContent = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                CircularProgressIndicator(color = Color.White)
-                Spacer(modifier = Modifier.width(24.dp))
-                Text(
-                    text = "Swipe Me",
-                    color = Color.White,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                )
-            }
+            Text(
+                text = "Swipe Me",
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp
+            )
         },
         onSwipeComplete = {})
 }
@@ -123,7 +101,7 @@ fun ContentSwiperUsage(modifier: Modifier = Modifier) {
 fun OutlinedVariantContentSwiperUsage(modifier: Modifier = Modifier) {
     ContentSwiper(
         contentPadding = PaddingValues(),
-        modifier = Modifier
+        modifier = modifier
             .border(
                 1.dp, Color.Black,
                 RoundedCornerShape(32.dp)
@@ -213,8 +191,12 @@ fun RawSwiperUsage(modifier: Modifier = Modifier) {
 @Composable
 private fun SwiperPreview() {
     SwiperTheme {
-        Surface {
-            Column(verticalArrangement = Arrangement.Absolute.spacedBy(8.dp)) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(
+                verticalArrangement = Arrangement.Absolute.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(24.dp)
+            ) {
                 BasicSwiperUsage()
                 ContentSwiperUsage()
                 RawSwiperUsage()

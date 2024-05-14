@@ -19,6 +19,7 @@ object AnchoredDragDefaults {
      * 2f (i.e. Swipe velocity should be twice the drag velocity)
      */
     const val MULTIPLIER_VELOCITY = 2f
+
     /**
      * Default positional multiplier of swiper.
      * 0.5f (i.e. 50%+ of swipe switches to the next draggable point)
@@ -32,32 +33,28 @@ object AnchoredDragDefaults {
     const val THRESHOLD_AFTER_SWIPE_PROGRESS = 0.65f
 
     /**
-     * Default animation spec of swiper.
-     * spring with medium damping ratio & low stiffness.
-     */
-    val dragAnimationSpec: AnimationSpec<Float> = spring(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessLow
-    )
-
-    /**
      * Default width of swiper.
-     * 320 dp.
+     * 350 dp.
      */
-    val defaultWidth = 320.dp
+    val defaultWidth = 350.dp
 
 
     @OptIn(ExperimentalFoundationApi::class)
-    internal fun default(widthPx: Float): AnchoredDraggableState<Float> {
+    internal fun default(
+        widthPx: Float,
+        positionThreshold: Float,
+        velocityThreshold: Float,
+        spec: AnimationSpec<Float>,
+    ): AnchoredDraggableState<Float> {
         return AnchoredDraggableState(
             initialValue = 0f,
-            positionalThreshold = { position: Float -> position * MULTIPLIER_POSITION },
-            velocityThreshold = { widthPx * MULTIPLIER_VELOCITY },
+            positionalThreshold = { position: Float -> position * positionThreshold },
+            velocityThreshold = { widthPx * velocityThreshold },
             anchors = DraggableAnchors {
                 0f at 0f
                 widthPx at widthPx
             },
-            animationSpec = dragAnimationSpec
+            animationSpec = spec
         )
     }
 
@@ -65,14 +62,30 @@ object AnchoredDragDefaults {
     /**
      * Default [AnchoredDraggableState] used by Swiper.
      * @param width The width of the swipe button in dp. Defaults to [defaultWidth].
+     * @param positionThreshold The threshold after swipe of swiper. Defaults to [THRESHOLD_AFTER_SWIPE_PROGRESS].
+     * @param velocityThreshold The velocity threshold of swiper. Defaults to [MULTIPLIER_VELOCITY].
+     * @param dragAnimationSpec The animation spec of swiper. Defaults to [spring].
      */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun rememberSwiperDragState(
         width: Dp = defaultWidth,
+        positionThreshold: Float = THRESHOLD_AFTER_SWIPE_PROGRESS,
+        velocityThreshold: Float = MULTIPLIER_VELOCITY,
+        dragAnimationSpec: AnimationSpec<Float> = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
     ): AnchoredDraggableState<Float> {
         val widthPx = with(LocalDensity.current) { width.toPx() }
-        return remember(widthPx) { default(widthPx) }
+        return remember(widthPx) {
+            default(
+                widthPx,
+                positionThreshold,
+                velocityThreshold,
+                dragAnimationSpec
+            )
+        }
     }
 
 
