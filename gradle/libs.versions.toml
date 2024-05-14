@@ -5,10 +5,9 @@ coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
-lifecycleRuntimeKtx = "2.7.0"
+lifecycleRuntimeKtx = "2.8.0"
 activityCompose = "1.9.0"
 composeBom = "2024.05.00"
-artifactPublish = "0.28.0"
 # Swiper version
 swiper="1.0.0-pre"
 
@@ -31,6 +30,5 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-artifact-publish = { id = "com.vanniktech.maven.publish", version.ref = "artifactPublish" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 

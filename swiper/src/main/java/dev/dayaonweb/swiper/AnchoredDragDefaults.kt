@@ -18,12 +18,12 @@ object AnchoredDragDefaults {
      * Default velocity multiplier of swiper.
      * 2f (i.e. Swipe velocity should be twice the drag velocity)
      */
-    private const val MULTIPLIER_VELOCITY = 2f
+    const val MULTIPLIER_VELOCITY = 2f
     /**
      * Default positional multiplier of swiper.
      * 0.5f (i.e. 50%+ of swipe switches to the next draggable point)
      */
-    private const val MULTIPLIER_POSITION = 0.5f
+    const val MULTIPLIER_POSITION = 0.5f
 
     /**
      * Default threshold after swipe of swiper.
@@ -35,7 +35,7 @@ object AnchoredDragDefaults {
      * Default animation spec of swiper.
      * spring with medium damping ratio & low stiffness.
      */
-    private val dragAnimationSpec: AnimationSpec<Float> = spring(
+    val dragAnimationSpec: AnimationSpec<Float> = spring(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = Spring.StiffnessLow
     )
@@ -44,7 +44,7 @@ object AnchoredDragDefaults {
      * Default width of swiper.
      * 320 dp.
      */
-    private val defaultWidth = 320.dp
+    val defaultWidth = 320.dp
 
 
     @OptIn(ExperimentalFoundationApi::class)

@@ -1,10 +1,19 @@
 package dev.dayaonweb.swiper
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -36,6 +45,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,7 +84,7 @@ fun BasicSwiper(
     onSwipeComplete: () -> Unit,
 ) {
     val anchoredDragState = AnchoredDragDefaults.rememberSwiperDragState()
-    var showProgressContent by remember(showProgress) {
+    var showProgressContent by rememberSaveable(showProgress) {
         mutableStateOf(showProgress)
     }
 
@@ -94,31 +104,50 @@ fun BasicSwiper(
                 orientation = Orientation.Horizontal,
                 enabled = !showProgressContent,
             )
-            .padding(contentPadding),
+            .padding(contentPadding)
+            .animateContentSize(),
     ) {
-        when (showProgressContent) {
-            true -> {
-                Box(
-                    modifier = Modifier
-                        .width(350.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    progressContent()
+        Crossfade(targetState = showProgressContent, label = "") { showProgressContent ->
+            when (showProgressContent) {
+                true -> {
+                    Box(
+                        modifier = Modifier
+                            .width(350.dp)
+                            .height(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        progressContent()
+                    }
                 }
-            }
 
-            false -> {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (showIcon) {
-                        Icon(
-                            imageVector = swipeIcon,
-                            contentDescription = null,
-                            tint = Color.White,
+                false -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (showIcon) {
+                            Icon(
+                                imageVector = swipeIcon,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .offset {
+                                        IntOffset(
+                                            y = 0,
+                                            x = anchoredDragState
+                                                .requireOffset()
+                                                .roundToInt()
+                                        )
+                                    },
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(
+                            text = displayText,
+                            style = displayTextStyle,
                             modifier = Modifier
-                                .size(32.dp)
+                                .fillMaxWidth()
                                 .offset {
                                     IntOffset(
                                         y = 0,
@@ -126,131 +155,9 @@ fun BasicSwiper(
                                             .requireOffset()
                                             .roundToInt()
                                     )
-                                },
+                                }
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Text(
-                        text = displayText,
-                        style = displayTextStyle,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset {
-                                IntOffset(
-                                    y = 0,
-                                    x = anchoredDragState
-                                        .requireOffset()
-                                        .roundToInt()
-                                )
-                            }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
-@Composable
-fun Swiper(
-    modifier: Modifier = Modifier,
-    displayText: String,
-    containerColor: Color,
-    containerShape: Shape = MaterialTheme.shapes.medium,
-    width: Dp = 350.dp,
-    displayTextStyle: TextStyle = MaterialTheme.typography.titleMedium.copy(
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.W600
-    ),
-    contentPadding: PaddingValues = PaddingValues(16.dp),
-    @DrawableRes iconId: Int = R.drawable.ic_arrow_right,
-    iconSize: Dp = 32.dp,
-    iconTint: Color = Color.White,
-    showIcon: Boolean = true,
-    velocityThresholdMultiplier: Float = 2f,
-    positionalThresholdMultiplier: Float = 0.5f,
-    swipeShowProgressThreshold: Float = 0.65f,
-    dragAnimationSpec: AnimationSpec<Float> = spring(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessLow
-    ),
-    onSwipeCompleteContent: @Composable () -> Unit,
-    onSwipeComplete: () -> Unit,
-) {
-
-    val maxPx = with(LocalDensity.current) { width.toPx() }
-    val anchoredDragState = remember {
-        AnchoredDraggableState(
-            initialValue = 0f,
-            positionalThreshold = { position: Float -> position * positionalThresholdMultiplier },
-            velocityThreshold = { maxPx * velocityThresholdMultiplier },
-            anchors = DraggableAnchors {
-                0f at 0f
-                maxPx at maxPx
-            },
-            animationSpec = dragAnimationSpec
-        )
-    }
-    var showProgressContent by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = anchoredDragState.requireOffset()) {
-        if (anchoredDragState.progress != 1.0f && anchoredDragState.progress >= swipeShowProgressThreshold && !showProgressContent) {
-            showProgressContent = true
-            onSwipeComplete()
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .width(width)
-            .background(color = containerColor, shape = containerShape)
-            .anchoredDraggable(
-                state = anchoredDragState,
-                orientation = Orientation.Horizontal,
-                enabled = !showProgressContent,
-            )
-            .padding(contentPadding),
-    ) {
-        when (showProgressContent) {
-            true -> onSwipeCompleteContent()
-            false -> {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (showIcon) {
-                        Icon(
-                            painter = painterResource(id = iconId),
-                            contentDescription = null,
-                            tint = iconTint,
-                            modifier = Modifier
-                                .size(iconSize)
-                                .offset {
-                                    IntOffset(
-                                        y = 0,
-                                        x = anchoredDragState
-                                            .requireOffset()
-                                            .roundToInt()
-                                    )
-                                },
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    Text(
-                        text = displayText,
-                        style = displayTextStyle,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset {
-                                IntOffset(
-                                    y = 0,
-                                    x = anchoredDragState
-                                        .requireOffset()
-                                        .roundToInt()
-                                )
-                            }
-                    )
                 }
             }
         }
@@ -273,6 +180,11 @@ fun ContentSwiper(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = Spring.StiffnessLow
     ),
+    preToPostTransitionAnimationSpec: AnimatedContentTransitionScope<Boolean>.() -> ContentTransform = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
     postSwipeContent: @Composable () -> Unit,
     preSwipeContent: @Composable BoxScope.() -> Unit,
     onSwipeComplete: () -> Unit,
@@ -311,19 +223,25 @@ fun ContentSwiper(
             )
             .padding(contentPadding),
     ) {
-        when (showProgressContent) {
-            true -> postSwipeContent()
-            false -> {
-                Box(modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            y = 0,
-                            x = anchoredDragState
-                                .requireOffset()
-                                .roundToInt()
-                        )
-                    }) {
-                    preSwipeContent()
+        AnimatedContent(
+            targetState = showProgressContent,
+            label = "",
+            transitionSpec = preToPostTransitionAnimationSpec
+        ) { showProgressContent ->
+            when (showProgressContent) {
+                true -> postSwipeContent()
+                false -> {
+                    Box(modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                y = 0,
+                                x = anchoredDragState
+                                    .requireOffset()
+                                    .roundToInt()
+                            )
+                        }) {
+                        preSwipeContent()
+                    }
                 }
             }
         }
@@ -341,6 +259,11 @@ fun RawSwiper(
     contentPadding: PaddingValues = PaddingValues(16.dp),
     anchoredDragState: AnchoredDraggableState<Float>,
     swipeShowProgressThreshold: Float = AnchoredDragDefaults.THRESHOLD_AFTER_SWIPE_PROGRESS,
+    preToPostTransitionSpec: AnimatedContentTransitionScope<Boolean>.() -> ContentTransform = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
     postSwipeContent: @Composable () -> Unit,
     preSwipeContent: @Composable BoxScope.() -> Unit,
     onSwipeComplete: () -> Unit,
@@ -365,19 +288,25 @@ fun RawSwiper(
             )
             .padding(contentPadding),
     ) {
-        when (showProgressContent) {
-            true -> postSwipeContent()
-            false -> {
-                Box(modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            y = 0,
-                            x = anchoredDragState
-                                .requireOffset()
-                                .roundToInt()
-                        )
-                    }) {
-                    preSwipeContent()
+        AnimatedContent(
+            targetState = showProgressContent,
+            label = "",
+            transitionSpec = preToPostTransitionSpec
+        ) { showProgressContent ->
+            when (showProgressContent) {
+                true -> postSwipeContent()
+                false -> {
+                    Box(modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                y = 0,
+                                x = anchoredDragState
+                                    .requireOffset()
+                                    .roundToInt()
+                            )
+                        }) {
+                        preSwipeContent()
+                    }
                 }
             }
         }
@@ -398,23 +327,6 @@ private fun SwiperPreview() {
                     progressContent = { CircularProgressIndicator() },
                     onSwipeComplete = {})
                 Spacer(modifier = Modifier.height(32.dp))
-                Swiper(
-                    iconTint = Color.Yellow,
-                    displayText = "Swipe to proceed",
-                    onSwipeCompleteContent = {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    },
-                    showIcon = true,
-                    dragAnimationSpec = tween(durationMillis = 1000),
-                    onSwipeComplete = {},
-                    containerColor = MaterialTheme.colorScheme.error,
-
-                    )
                 Spacer(modifier = Modifier.height(32.dp))
                 ContentSwiper(
                     containerColor = Color.Red,

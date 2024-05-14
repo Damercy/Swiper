@@ -1,19 +1,26 @@
-import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.artifact.publish)
 }
 
 android {
     namespace = "dev.dayaonweb.swiper"
     compileSdk = 34
+    version = libs.versions.swiper
 
     defaultConfig {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        aarMetadata {
+            minCompileSdk = 24
+        }
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildTypes {
@@ -55,39 +62,4 @@ dependencies {
     implementation(libs.androidx.material3)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-}
-
-mavenPublishing{
-    coordinates(groupId = "dev.dayaonweb", artifactId = "swiper", version = libs.versions.swiper.orNull)
-    pom {
-        name.set("Swiper")
-        description.set("A fully customizable swipe button composable library.")
-        inceptionYear.set("2024")
-        url.set("https://github.com/Damercy/Swiper/")
-        licenses {
-            license {
-                name.set("The Apache License, Version 2.0")
-                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-            }
-        }
-        developers {
-            developer {
-                id.set("Damercy")
-                name.set("Damercy")
-                url.set("https://github.com/Damercy/")
-            }
-        }
-        scm {
-            url.set("https://github.com/Damercy/Swiper/")
-            connection.set("scm:git:git://github.com/Damercy/Swiper.git")
-            developerConnection.set("scm:git:ssh://git@github.com/Damercy/Swiper.git")
-        }
-    }
-
-    configure(AndroidSingleVariantLibrary(
-        variant = "release",
-        sourcesJar = true,
-        publishJavadocJar = true,
-    ))
 }
